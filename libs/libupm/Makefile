@@ -33,7 +33,7 @@ include $(TOPDIR)/feeds/packages/lang/python/python-package.mk
 include $(TOPDIR)/feeds/packages/lang/python/python3-package.mk
 
 UPM_MODULES:= \
-	a110x ad8232 adafruitms1438 adafruitss adc121c021 adis16448 ads1x15 adxl335 adxl345 adxrs610 am2315 \
+	a110x ad8232 adafruitss adc121c021 adis16448 ads1x15 adxl335 adxl345 adxrs610 am2315 \
 	apa102 apds9002 apds9930 at42qt1070 biss0001 bma220 bmi160 bmp280 bmpx8x bno055 buzzer cjq4435 cwlsxxa \
 	dfrph ds1307 ds1808lc ds18b20 ds2413 ecs1030 enc03r flex \
 	gas gp2y0a grove grovecollision groveehr groveeldriver groveelectromagnet groveemg grovegprs grovegsr grovelinefinder \
@@ -345,53 +345,8 @@ endef
 
 define Package/libupm-$(1)
   $(call Package/libupm/Default)
-  $(call UpmPackage/depends,$(1))
-  TITLE:=$(1) C/C++ library
-endef
-
-define Package/libupm-$(1)/description
-$(call Package/libupm/Default/description)
-
-This package contains $(1) sensor C/C++ library
-endef
-
-define Package/libupm-$(1)-node
-  $(call Package/libupm/Default)
-  $(call UpmPackage/depends,$(1))
-  TITLE:=$(1) Node.js library
-  DEPENDS+=+libupm-$(1) +libmraa-node +node
-endef
-
-define Package/libupm-$(1)-node/description
-$(call Package/libupm/Default/description)
-
-This package contains $(1) sensor Node.js library
-endef
-
-define Package/libupm-$(1)-python
-  $(call Package/libupm/Default)
-  $(call UpmPackage/depends,$(1))
-  TITLE:=$(1) Python library
-  DEPENDS+=+libupm-$(1) +libmraa-python +python-light
-endef
-
-define Package/libupm-$(1)-python/description
-$(call Package/libupm/Default/description)
-
-This package contains $(1) sensor Python library
-endef
-
-define Package/libupm-$(1)-python3
-  $(call Package/libupm/Default)
-  $(call UpmPackage/depends,$(1))
-  TITLE:=$(1) Python3 library
-  DEPENDS+=+libupm-$(1) +libmraa-python3 +python3-light
-endef
-
-define Package/libupm-$(1)-python3/description
-$(call Package/libupm/Default/description)
-
-This package contains $(1) sensor Python3 library
+  TITLE:=Intel IoT sensor library - $(1)
+  DEPENDS+=$(2)
 endef
 
 define Package/libupm-$(1)/install
@@ -409,9 +364,10 @@ endef
 endef
 
 $(eval $(call BuildPackage,libupm))
-$(foreach module, $(UPM_MODULES), \
-	$(eval $(call UpmPackage,$(module))) \
-	$(eval $(call BuildPackage,libupm-$(module))) \
-	$(eval $(call BuildPackage,libupm-$(module)-node)) \
-	$(eval $(call BuildPackage,libupm-$(module)-python)) \
-	$(eval $(call BuildPackage,libupm-$(module)-python3)))
+$(foreach package, $(UPM_MODULES),			\
+	$(eval $(call UpmPackage,$(package)))		\
+	$(eval $(call BuildPackage,libupm-$(package)))	\
+)
+# Packages that depend on other libupm packages
+$(eval $(call UpmPackage,adafruitms1438,+libupm-pca9685))
+$(eval $(call BuildPackage,libupm-adafruitms1438))
