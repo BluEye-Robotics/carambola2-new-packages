@@ -231,7 +231,8 @@ CONFIGURE_ARGS+= \
 	--with-nan-emulation \
 	--with-libyajl=no \
 	--without-perl-bindings \
-	--without-libudev
+	--without-libudev \
+	--without-java
 
 CONFIGURE_VARS+= \
 	CFLAGS="$$$$CFLAGS $(FPIC)" \
