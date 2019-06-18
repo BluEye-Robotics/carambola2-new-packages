@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2015 OpenWrt.org
+# Copyright (C) 2008-2016 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,20 +8,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gst1-plugins-base
-PKG_VERSION:=1.6.2
+PKG_VERSION:=1.16.0
 PKG_RELEASE:=1
 
-PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
+PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org> \
+		Ted Hess <thess@kitschensync.net>
 
 PKG_LICENSE:=LGPLv2 GPLv2
 PKG_LICENSE_FILES:=COPYING.LIB COPYING
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/gst-plugins-base-$(PKG_VERSION)
 PKG_SOURCE:=gst-plugins-base-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=http://gstreamer.freedesktop.org/src/gst-plugins-base/
-PKG_MD5SUM:=f530fbbe287edce79c55a37bd1a39fe2
+PKG_SOURCE_URL:=https://gstreamer.freedesktop.org/src/gst-plugins-base
+PKG_HASH:=4093aa7b51e28fb24dfd603893fead8d1b7782f088b05ed0f22a21ef176fb5ae
 
-PKG_BUILD_DEPENDS:= libgstreamer1
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_gst1-mod-alsa \
 	CONFIG_PACKAGE_gst1-mod-app \
@@ -40,6 +40,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_libgst1app \
 
 PKG_FIXUP:=autoreconf
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -52,7 +53,7 @@ define Package/gstreamer1-base/Default
   CATEGORY:=Multimedia
   SECTION:=multimedia
   TITLE:=GStreamer
-  URL:=http://gstreamer.freedesktop.org/
+  URL:=https://gstreamer.freedesktop.org/
   DEPENDS:= +libgstreamer1 $(ICONV_DEPENDS)
 endef
 
@@ -117,6 +118,15 @@ GST_VERSION:=1.0
 CONFIGURE_ARGS += \
 	--disable-debug \
 	--disable-examples \
+	--disable-fatal-warnings \
+	--disable-glib-asserts \
+	--disable-gobject-cast-checks \
+	--disable-gtk-doc-html \
+	--disable-introspection \
+	--disable-rpath \
+	--disable-valgrind \
+	--without-html-dir \
+	--with-pic \
 	\
 	$(call GST_COND_SELECT,alsa) \
 	$(call GST_COND_SELECT,app) \
@@ -125,7 +135,6 @@ CONFIGURE_ARGS += \
 	$(call GST_COND_SELECT,audioresample) \
 	$(call GST_COND_SELECT,audiotestsrc) \
 	--disable-cdparanoia \
-	--disable-freetypetest \
 	$(call GST_COND_SELECT,gio) \
 	--disable-libvisual \
 	$(call GST_COND_SELECT,ogg) \
@@ -145,13 +154,8 @@ CONFIGURE_ARGS += \
 	\
 	--without-libiconv-prefix \
 	--without-libintl-prefix \
-	--without-x \
 	\
 	--with-audioresample-format=int \
-
-EXTRA_LDFLAGS+= \
-	-Wl,-rpath-link=$(STAGING_DIR)/usr/lib \
-	$(if $(ICONV_FULL),-liconv) \
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/gstreamer-$(GST_VERSION)
@@ -227,7 +231,7 @@ $(eval $(call GstBuildLibrary,pbutils,utils,audio tag video,))
 $(eval $(call GstBuildLibrary,riff,RIFF media,audio tag,,))
 $(eval $(call GstBuildLibrary,rtp,RTP,,))
 $(eval $(call GstBuildLibrary,rtsp,RTSP,,))
-$(eval $(call GstBuildLibrary,sdp,SDP,,))
+$(eval $(call GstBuildLibrary,sdp,SDP,rtp,))
 $(eval $(call GstBuildLibrary,tag,tag support,,))
 $(eval $(call GstBuildLibrary,video,video,,))
 
@@ -275,6 +279,7 @@ $(eval $(call GstBuildPlugin,audiotestsrc,audio test,audio tag controller,,))
 $(eval $(call GstBuildPlugin,playback,media decoder (v2),pbutils,,))
 $(eval $(call GstBuildPlugin,gio,GIO,,,))
 $(eval $(call GstBuildPlugin,ogg,Ogg,riff tag pbutils video,,+libogg))
+$(eval $(call GstBuildPlugin,opus,OPUS plugin library,pbutils video,,+libopus))
 $(eval $(call GstBuildPlugin,tcp,TCP,net,,))
 $(eval $(call GstBuildPlugin,theora,Theora,tag video,,+libogg +libtheora))
 $(eval $(call GstBuildPlugin,typefindfunctions,'typefind' functions,audio pbutils tag video,,))
