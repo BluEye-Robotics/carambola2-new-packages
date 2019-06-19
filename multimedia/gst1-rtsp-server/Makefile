@@ -69,7 +69,7 @@ define Build/InstallDev
 	)
 	$(INSTALL_DIR) $(1)/usr/lib
 	( cd $(PKG_INSTALL_DIR); $(CP) \
-		./usr/lib/libgst*-$(GST_VERSION).{a,la,so*} \
+		./usr/lib/libgst*-$(GST_VERSION).{la,so*} \
 		$(1)/usr/lib/ \
 	)
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
