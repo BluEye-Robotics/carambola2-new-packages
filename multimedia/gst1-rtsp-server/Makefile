@@ -24,16 +24,33 @@ GST_VERSION:=1.0
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 
-define Package/gst1-rtsp-server
-	SECTION:=multimedia
+define Package/gst1-rtsp-server/Default
 	CATEGORY:=Multimedia
+	SECTION:=multimedia
 	TITLE:=Gstreamer RTSP Server
 	URL:=https://gstreamer.freedesktop.org/modules/gst-rtsp-server.html
-	DEPENDS:=+glib2 +gstreamer1 +gst1-plugins-base
+endef
+
+define Package/gst1-rtsp-server
+	$(call Package/gst1-rtsp-server/Default)
+	DEPENDS:=+libgst1-rtsp-server
+endef
+
+define Package/gst1-rtsp-server/description/Default
+	RTSP server library based on GStreamer
 endef
 
 define Package/gst1-rtsp-server/description
-  RTSP server library based on GStreamer
+	$(call Package/gst1-rtsp-server/description/Default)
+endef
+
+define Package/libgst1-rtsp-server
+	$(call Package/gst1-rtsp-server/Default)
+	DEPENDS:=+glib2 +gstreamer1 +gst1-plugins-base
+endef
+
+define Package/libgst1-rtsp-server/description
+	$(call Package/gst1-rtsp-server/description/Default)
 endef
 
 CONFIGURE_ARGS += \
@@ -45,17 +62,37 @@ CONFIGURE_ARGS += \
 	--enable-gettext=no
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/gstreamer-rtsp-server-$(GST_VERSION).pc $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libgstrtspserver-$(GST_VERSION).so* $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libgstrtspserver-$(GST_VERSION).la $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/include/gstreamer-$(GST_VERSION)
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/gstreamer-$(GST_VERSION)/* $(1)/usr/include/gstreamer-$(GST_VERSION)
+	( cd $(PKG_INSTALL_DIR); $(CP) \
+		./usr/include/gstreamer-$(GST_VERSION)/* \
+		$(1)/usr/include/gstreamer-$(GST_VERSION)/ \
+	)
+	$(INSTALL_DIR) $(1)/usr/lib
+	( cd $(PKG_INSTALL_DIR); $(CP) \
+		./usr/lib/libgst*-$(GST_VERSION).{a,la,so*} \
+		$(1)/usr/lib/ \
+	)
+	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	( cd $(PKG_INSTALL_DIR); $(CP) \
+		./usr/lib/pkgconfig/gstreamer*-$(GST_VERSION).pc \
+		$(1)/usr/lib/pkgconfig/ \
+	)
 endef
 
 define Package/gst1-rtsp-server/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/examples/.libs/test-launch $(1)/usr/bin/gst-rtsp-launch
+	true
 endef
 
+define Package/libgst1-rtsp-server/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	( cd $(PKG_INSTALL_DIR); $(CP) \
+		./usr/lib/libgstrtspserver-$(GST_VERSION).so.* \
+		$(1)/usr/lib/ \
+	)
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/examples/.libs/test-launch \
+		$(1)/usr/bin/gst-rtsp-launch
+endef
+
+$(eval $(call BuildPackage,libgst1-rtsp-server))
 $(eval $(call BuildPackage,gst1-rtsp-server))
