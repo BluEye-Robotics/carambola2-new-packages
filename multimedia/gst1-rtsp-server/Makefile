@@ -16,6 +16,7 @@ PKG_LICENSE_FILES:=COPYING.LIB COPYING
 PKG_BUILD_DIR:=$(BUILD_DIR)/gst-rtsp-server-$(PKG_VERSION)
 
 PKG_FIXUP:=autoreconf
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 GST_VERSION:=1.0
@@ -43,11 +44,16 @@ CONFIGURE_ARGS += \
 	--disable-gtk-doc-html \
 	--enable-gettext=no
 
-define Package/gst1-rtsp-server/install
+define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/gstreamer-rtsp-server-$(GST_VERSION).pc $(1)/usr/lib/pkgconfig
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libgstrtspserver-$(GST_VERSION).so* $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libgstrtspserver-$(GST_VERSION).la $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/usr/include/gstreamer-$(GST_VERSION)
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/gstreamer-$(GST_VERSION)/* $(1)/usr/include/gstreamer-$(GST_VERSION)
+endef
+
+define Package/gst1-rtsp-server/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/examples/.libs/test-launch $(1)/usr/bin/gst-rtsp-launch
 endef
