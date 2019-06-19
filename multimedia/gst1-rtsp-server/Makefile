@@ -59,6 +59,13 @@ CONFIGURE_ARGS += \
 	--disable-glib-asserts \
 	--disable-gobject-cast-checks \
 	--disable-gtk-doc-html \
+	--disable-introspection \
+	--without-libiconv-prefix \
+	--without-libintl-prefix \
+	--disable-valgrind \
+	--disable-rpath \
+	--disable-tests \
+	--disable-zlib \
 	--enable-gettext=no
 
 define Build/InstallDev
